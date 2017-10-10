@@ -25,13 +25,13 @@ https://goo.gl/wb145Z
 •	The seismic data is available here: https://goo.gl/wb145Z 
 <b> BEAWRE one 32 bit SEGY File is 100 GB of data</b>
 
-•	There is also inline ,xline, z training data for fault identification 
+•	There is also inline, xline, z, training data for fault identification on the Poseidon survey
 
 •	The Dutch government F3 seismic dataset can also be downloaded from the same location including. 
 <b>This data is only 1 GB</b>
 
-•	Training data for multi facies prediction, faults and steep dips
-•	Trained neural network models for steep dips and multi facies
+•	Training data locations for multi facies prediction, faults and steep dips is provided
+•	Trained neural network models for steep dips and multi facies can be assessed
 . 
 .
 
