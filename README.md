@@ -32,3 +32,8 @@ https://goo.gl/wb145Z
 
 •	Training data for multi facies prediction, faults and steep dips
 •	Trained neural network models for steep dips and multi facies
+. 
+.
+
+<b>MalenoV stands for Machine Learning of Voxles</b>
+
