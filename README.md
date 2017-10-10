@@ -35,5 +35,5 @@ https://goo.gl/wb145Z
 . 
 .
 
-<b>MalenoV stands for Machine Learning of Voxles</b>
+<b>MalenoV stands for MAchine LEarNing of VOxles</b>
 
