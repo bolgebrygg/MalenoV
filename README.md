@@ -20,7 +20,7 @@ Seismic training data for testing the tool:
 •	Since there is a limited number of free seismic dataset publicly available we decided to make available the Poseidon (3500km2) seismic dataset acquired for ConocoPhillips Australia including Near, Mid, Far stacks, well data and velocity data
 
 •	The seismic data is available here: https://goo.gl/wb145Z
-•	               BEAWRE one 32 bit SEGY File is 100 GB of data
+•	               BEAWRE one 32 bit SEGY File is 100 GB of data <h3>This is heading 3</h3>
 
 •	There is also inline ,xline, z training data for fault identification 
 •	
