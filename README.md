@@ -15,7 +15,10 @@ Complete tool for training &amp;  classifying 3D SEGY seismic using deep neural 
 https://goo.gl/wb145Z
 
 
-Seismic training data for testing the tool:
+
+
+
+<b>Seismic training data for testing the tool:</b>
 
 •	Since there is a limited number of free seismic dataset publicly available we decided to make available the Poseidon (3500km2) seismic dataset acquired for ConocoPhillips Australia including Near, Mid, Far stacks, well data and velocity data
 
