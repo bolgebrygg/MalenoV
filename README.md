@@ -11,7 +11,7 @@ Complete tool for training &amp;  classifying 3D SEGY seismic using deep neural 
 
 •	The tool is public with a GNU Lesser General Public License v3.0
 
-<b>The User Manual for the tool can be found here</b>
+<h3>The User Manual for the tool can be found here</h3>
 https://goo.gl/wb145Z
 
 
