@@ -11,6 +11,8 @@
 
 •	The tool is public with a GNU Lesser General Public License v3.0
 
+•	The tool will soon be updated to handle multiple input volumes (offest stacks, 4D seismic) for better classification results
+
 <h3>The User Manual for the tool can be found here</h3>
 https://goo.gl/wb145Z
 
