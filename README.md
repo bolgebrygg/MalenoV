@@ -29,7 +29,7 @@ https://goo.gl/wb145Z
 
 •	There is also inline, xline, z, training data for fault identification on the Poseidon survey
 
-•	The Dutch government F3 seismic dataset can also be downloaded from the same location including. 
+•	The Dutch government F3 seismic dataset can also be downloaded from the same location. 
 <b>This data is only 1 GB</b>
 
 •	Training data locations for multi facies prediction, faults and steep dips is provided
