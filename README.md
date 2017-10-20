@@ -37,11 +37,11 @@ or, if you have GPU support,
 ```
 pip install -e.[gpu]
 ```
-The `-e` flag allows you to modify the source in place after installation. This allows you to run in your data directory
+The `-e` flag allows you to modify the source in place after installation. Installing the module this way takes care of the dependencies and allows you to run in your data directory
 ```
 $ malenov
 ```
-without having to move the script around.
+without having to move the script around, as long as the virtual environment is active.
 
 
 <h3>Seismic training data for testing the tool:</h3>
