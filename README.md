@@ -11,7 +11,7 @@ The tool reads can handle n seismic input cubes (offest stacks, 4D data, attribu
 
 •	Currently a 5 layer basic 3D convolutional network is implemented but this can be changed by the users at liberty
 
-•	This tool is essentially an I/O function for machine learning with seismic. Better architectures for AVO, rock property prediction, fault classifications are to be implemented
+•	This tool is essentially an I/O function for machine learning with seismic. Better neural architectures for AVO, rock property prediction, fault classifications are to be implemented
 
 •	The tool is public with a GNU Lesser General Public License v3.0
 
