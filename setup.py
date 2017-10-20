@@ -10,6 +10,7 @@ setup(name='MalenoV',
                         'matplotlib',
                         'tensorflow',
                         'keras',
+                        'h5py',
                         'segyio==1.3.0'],
       extras_require={
           'gpu': ['tensorflow-gpu'],
