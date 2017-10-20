@@ -1,4 +1,4 @@
-# MalenoV
+# MalenoV_nD
 <h2> Tool for training &amp;  classifying 3D (4D, nD) SEGY seismic facies using deep neural networks</h2>
 
 •	MalenoV reads standard 3D SEGY seismic and performs a 3D neural network architecture of choice on a given set of classification data points (facies annotation /supervision).  It then uses the learned weights and filters of the neural network to classify seismic at any other location in the seismic cube into the facies classes that have been previously been defined by the user. Finally the facies classification is written out as a SEGY cube with the same dimensions as the input cube.
@@ -42,5 +42,6 @@ https://goo.gl/wb145Z
 .
 
 <b>MalenoV stands for MAchine LEarNing Of Voxels</b>
+
 <b>nD stands for unlimited input dimensions</b>
 
