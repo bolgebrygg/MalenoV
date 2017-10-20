@@ -1,7 +1,7 @@
-### Function for seismic facies training /classification using Convolutional Neural Nets (CNN)
-### By: Charles Rutherford Ildstad (University of Trondheim), as part of a summer intern project in ConocoPhillips
+### Function for n-dimensional seismic facies training /classification using Convolutional Neural Nets (CNN)
+### By: Charles Rutherford Ildstad (University of Trondheim), as part of a summer intern project in ConocoPhillips and private work
 ### Contributions from Anders U. Waldeland (University of Oslo), Chris Olsen (ConocoPhillips), Doug Hakkarinen (ConocoPhillips)
-### Date: 08.08.2017
+### Date: 26.10.2017
 ### For: ConocoPhillips, Norway,
 ### GNU V3.0 lesser license
 
@@ -119,6 +119,66 @@ def segy_decomp(segy_file, plot_data = False, read_direc='xline', inp_res = np.f
     print('Finished using the SEG-Y decompressor')
     return output
 
+
+
+# Make a function that adds another layer to a segy-cube
+def segy_adder(segy_file, inp_cube, read_direc='xline', inp_res = np.float64):
+    # segy_file: filename of the segy-cube to be imported
+    # inp_cube: the existing cube that we should add a layer to
+    # cube_num: which chronological number of cube is this
+    # read_direc: which way the SEGY-cube should be read; 'xline', or 'inline'
+    # inp_res: input resolution, the formatting of the seismic cube (could be changed to 8-bit data)
+
+    # Make a variable to hold the shape of the input cube and preallocate a data holder
+    print('Starting SEG-Y adder')
+    cube_shape = inp_cube.shape
+    dataholder = np.empty(cube_shape[0:-1])
+
+    # open the segyfile and start decomposing it
+    with segyio.open(segy_file, "r" ) as segyfile:
+        # Memory map file for faster reading (especially if file is big...)
+        segyfile.mmap()
+
+        # Read the entire cube line by line in the desired direction
+        if read_direc == 'inline':
+            # Potentially time this to find the "fast" direction
+            #start = time.time()
+            for il_index in range(segyfile.xline.len):
+                dataholder[il_index,:,:] = segyfile.iline[segyfile.ilines[il_index]]
+            #end = time.time()
+            #print(end - start)
+
+        elif read_direc == 'xline':
+            # Potentially time this to find the "fast" direction
+            #start = time.time()
+            for xl_index in range(segyfile.iline.len):
+                dataholder[:,xl_index,:] = segyfile.xline[segyfile.xlines[xl_index]]
+            #end = time.time()
+            #print(end - start)
+
+        elif read_direc == 'full':
+            ## NOTE: 'full' for some reason invokes float32 data
+            # Potentially time this to find the "fast" direction
+            #start = time.time()
+            dataholder[:,:,:] = segyio.tools.cube(segy_file)
+            #end = time.time()
+            #print(end - start)
+        else:
+            print('Define reading direction(read_direc) using either ''inline'', ''xline'', or ''full''')
+
+
+        # Convert the numpy array to span between -127 and 127 and convert to the desired format
+        factor = 127/np.amax(np.absolute(dataholder))
+        if inp_res == np.float32:
+            dataholder = (dataholder*factor)
+        else:
+            dataholder = (dataholder*factor).astype(dtype = inp_res)
+
+
+    # Return the output object
+    print('Finished adding a SEG-Y layer')
+    return dataholder
+
 # Convert a numpy-cube and seismic specs into a csv file/numpy-csv-format,
 def csv_struct(inp_numpy,spec_obj,section,inp_res=np.float64,save=False,savename='default_write.ixz'):
     # inp_numpy: array that should be converted to csv
@@ -163,13 +223,6 @@ def csv_struct(inp_numpy,spec_obj,section,inp_res=np.float64,save=False,savename
     return full_np
 
 
-
-
-
-
-
-
-
 ### ---- Functions for data augmentation ---- (Needs further development)
 # RotationXY
 def randomRotationXY(X, max_rot):
@@ -199,16 +252,6 @@ def randomFlip(window_function):
     should_flip = tf.cast(tf.random_uniform([1], 0, 2, dtype=tf.int32)[0] > 0, tf.bool)
     window_function = tf.reverse(window_function, tf.pack([should_flip]))
     return window_function
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -279,6 +322,7 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
     t_start = seis_spec.t_start
     t_end = seis_spec.t_end
     t_step = seis_spec.t_step
+    num_channels = seis_spec.cube_num
 
     # Define the buffer zone around the edge of the cube that defines the legal/illegal adresses
     inl_min = inline_start + inline_step*cube_incr
@@ -298,7 +342,7 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
           ',',cube_incr,',',((t_end-t_start)//t_step) - cube_incr,')')
 
     # We preallocate the function outputs; a list of examples and a list of labels
-    examples = np.empty((num_examp,cube_size,cube_size,cube_size),dtype=inp_res)
+    examples = np.empty((num_examp,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
     labels = np.empty(num_examp,dtype=np.int8)
 
     # If we want to stack the examples in the third dimension we use the following example preallocation in stead
@@ -328,9 +372,11 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
                 # Make the example for the given address
                 # Convert the adresses to indexes and store the examples in the 4th dimension
                 idx = [(adr[0]-inline_start)//inline_step,(adr[1]-xline_start)//xline_step,(adr[2]-t_start)//t_step]
-                examples[i-n,:,:,:] = seis_arr[idx[0]-cube_incr:idx[0]+cube_incr+1,\
+
+
+                examples[i-n,:,:,:,:] = seis_arr[idx[0]-cube_incr:idx[0]+cube_incr+1,\
                               idx[1]-cube_incr:idx[1]+cube_incr+1,\
-                              idx[2]-cube_incr:idx[2]+cube_incr+1]
+                              idx[2]-cube_incr:idx[2]+cube_incr+1,:]
 
                 # Put the cube and label into the lists
                 labels[i-n] = adr[-1]
@@ -356,7 +402,7 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
     #examples = examples[0:i-n+1,:,:,:]
 
     # Return the output list/tuple (slice it if it has been shortened)
-    return (examples[0:i-n+1,:,:,:], labels[0:i-n+1])
+    return (examples[0:i-n+1,:,:,:,:], labels[0:i-n+1])
 
 
 # Function that takes the epoch as input and returns the desired learning rate
@@ -373,8 +419,8 @@ def adaptive_lr(input_int):
 # Make the network structure and outline, and train it
 def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,\
                 num_bunch = 10,num_epochs = 100,num_examples = 10000,batch_size = 32,\
-                opt_patience = 5, data_augmentation=False,keras_model = None,\
-                write_out = False,write_location = 'default_write'):
+                opt_patience = 5, data_augmentation=False,num_channels = 1,\
+                keras_model = None,write_out = False,write_location = 'default_write'):
     # segy_obj: Object returned from the segy_decomp function
     # class_array: numpy array of class adresses and type, returned from the convert function
     # num_classes: number of destinct classes we are training on
@@ -386,6 +432,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
     # batch_size: number of mini-batches we go through at a time from the number of examples
     # opt_patience: epochs that can pass without improvement in accuracy before the system breaks the loop
     # data_augmentation: boolean which determines whether or not to apply augmentation on the examples
+    # num_channels: number of segy-cubes we have imported simultaneously
     # keras_model: existing keras model to be improved if the user wants to improve and not create a new model
     # write_out: boolean; save the trained model to disk or not,
     # write_location: desired location on the disk for the model to be saved
@@ -399,7 +446,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
         #  and 2 fully connected layers with rectified linear and softmax activations)
         # We have added drop out and batch normalization our selves, and experimented with multi-prediction
         model = Sequential()
-        model.add(Conv3D(50, (5, 5, 5), padding='same', input_shape=(cube_size,cube_size,cube_size,1), strides=(4, 4, 4), \
+        model.add(Conv3D(50, (5, 5, 5), padding='same', input_shape=(cube_size,cube_size,cube_size,num_channels), strides=(4, 4, 4), \
                          data_format="channels_last",name = 'conv_layer1'))
         model.add(BatchNormalization())
         model.add(Activation('relu'))
@@ -470,7 +517,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
         print('Finished creating',num_examples,'examples!')
 
         # Define and reshape the training data
-        x_train = np.expand_dims(x_train,axis=4)
+        # x_train = np.expand_dims(x_train,axis=4)
 
         # Convert labels to one-hot encoding(and if necessary change the data type and scale as needed)
         y_train = keras.utils.to_categorical(y_train, num_classes)
@@ -560,7 +607,6 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
 
 
 
-
 ### ---- Functions for the prediction part of the program ----
 # Parse the cube into sub-cubes suitable as model input
 def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding = False,\
@@ -579,6 +625,7 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
     inls = seis_arr.shape[0]
     xls = seis_arr.shape[1]
     zls = seis_arr.shape[2]
+    num_channels = seis_arr.shape[3]
     cube_size = 2*cube_incr+1
 
     # Define the indent where the saved data will start, if user wants padding this is 0, else it is cube_incr
@@ -590,19 +637,19 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
         if conc:
             # Make adjustments to the parameters so that we iterate over the right number of samples, etc.
             if mode == 'full':
-                examples = np.zeros((inls*xls*zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((inls*xls*zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
             elif mode == 'inline':
-                examples = np.zeros((xls*zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((xls*zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 x_re = cube_incr
             elif mode == 'xline':
-                examples = np.zeros((inls*zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((inls*zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
             elif mode == 'trace':
-                examples = np.zeros((zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
                 x_re = cube_incr
             elif mode == 'point':
-                examples = np.zeros((1,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((1,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
                 x_re = cube_incr
                 z_re = cube_incr
@@ -615,19 +662,19 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
         else:
             # Make adjustments to the parameters so that we iterate over the right number of samples, etc.
             if mode == 'full':
-                examples = np.zeros((inls,xls,zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((inls,xls,zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
             elif mode == 'inline':
-                examples = np.zeros((1,xls,zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((1,xls,zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 x_re = cube_incr
             elif mode == 'xline':
-                examples = np.zeros((inls,1,zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((inls,1,zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
             elif mode == 'trace':
-                examples = np.zeros((1,1,zls,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((1,1,zls,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
                 x_re = cube_incr
             elif mode == 'point':
-                examples = np.zeros((1,1,1,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.zeros((1,1,1,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 i_re = cube_incr
                 x_re = cube_incr
                 z_re = cube_incr
@@ -637,31 +684,31 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
         i_re = cube_incr
         x_re = cube_incr
         z_re = cube_incr
-        # Preallocate the output array, if concatenated it's 4 dimensional, if not it's 6 dimensional
+        # Preallocate the output array, if concatenated it's 5 dimensional, if not it's 7 dimensional
         if conc:
             # Make adjustments to the parameters so that we iterate over the right number of samples, etc.
             if mode == 'full':
-                examples = np.empty(((inls-2*cube_incr)*(xls-2*cube_incr)*(zls-2*cube_incr),cube_size,cube_size,cube_size),\
+                examples = np.empty(((inls-2*cube_incr)*(xls-2*cube_incr)*(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
             elif mode == 'inline':
-                examples = np.empty(((xls-2*cube_incr)*(zls-2*cube_incr),cube_size,cube_size,cube_size),\
+                examples = np.empty(((xls-2*cube_incr)*(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
                 inline_num -= cube_incr
                 xline_num = 0
                 depth = 0
             elif mode == 'xline':
-                examples = np.empty(((inls-2*cube_incr)*(zls-2*cube_incr),cube_size1,cube_size,cube_size),\
+                examples = np.empty(((inls-2*cube_incr)*(zls-2*cube_incr),cube_size1,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
                 inline_num = 0
                 xline_num -= cube_incr
                 depth = 0
             elif mode == 'trace':
-                examples = np.empty((zls-2*cube_incr,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.empty((zls-2*cube_incr,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 inline_num -= cube_incr
                 xline_num -= cube_incr
                 depth = 0
             elif mode == 'point':
-                examples = np.empty((1,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.empty((1,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
                 inline_num -= cube_incr
                 xline_num -= cube_incr
                 depth -= cube_incr
@@ -673,18 +720,18 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
             zls -= 2*cube_incr
         else:
             if mode == 'full':
-                examples = np.empty(((inls-2*cube_incr),(xls-2*cube_incr),(zls-2*cube_incr),cube_size,cube_size,cube_size),\
+                examples = np.empty(((inls-2*cube_incr),(xls-2*cube_incr),(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
             elif mode == 'inline':
-                examples = np.empty((1,(xls-2*cube_incr),(zls-2*cube_incr),cube_size,cube_size,cube_size),\
+                examples = np.empty((1,(xls-2*cube_incr),(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
             elif mode == 'xline':
-                examples = np.empty(((inls-2*cube_incr),1,(zls-2*cube_incr),cube_size,cube_size,cube_size),\
+                examples = np.empty(((inls-2*cube_incr),1,(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),\
                                    dtype=inp_res)
             elif mode == 'trace':
-                examples = np.empty((1,1,(zls-2*cube_incr),cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.empty((1,1,(zls-2*cube_incr),cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
             elif mode == 'point':
-                examples = np.empty((1,1,1,cube_size,cube_size,cube_size),dtype=inp_res)
+                examples = np.empty((1,1,1,cube_size,cube_size,cube_size,num_channels),dtype=inp_res)
             else:
                 print('ERROR: invalid mode! use: ''full'',''xline'',''inline'',''trace'', or ''point''')
 
@@ -696,16 +743,16 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
             if mode == 'xline':
                 j = xline_num
                 for k in range(cube_size, zls+cube_size):
-                    examples[inls*(i-i_re)+k-z_re,:,:,:] = seis_arr[i-cube_incr+inline_num:i+cube_incr+inline_num+1,\
+                    examples[inls*(i-i_re)+k-z_re,:,:,:,:] = seis_arr[i-cube_incr+inline_num:i+cube_incr+inline_num+1,\
                                                                     j-cube_incr:j+cube_incr+1,\
-                                                                    k-cube_incr+depth:k+cube_incr+depth+1]
+                                                                    k-cube_incr+depth:k+cube_incr+depth+1,:]
             else:
                 for j in range(cube_incr, xls+cube_incr):
                     for k in range(cube_incr, zls+cube_incr):
-                        examples[(i-i_re)*inls+(j-x_re)*xls+k-z_re,:,:,:] = \
+                        examples[(i-i_re)*inls+(j-x_re)*xls+k-z_re,:,:,:,:] = \
                                                             seis_arr[i-cube_incr+inline_num:i+cube_incr+inline_num+1,\
                                                                      j-cube_incr+xline_num:j+cube_incr+xline_num+1,\
-                                                                     k-cube_incr+depth:k+cube_incr+depth+1]
+                                                                     k-cube_incr+depth:k+cube_incr+depth+1,:]
 
                         # Make sure we stop after the appropriate number of iterations
                         if mode == 'point':
@@ -721,15 +768,15 @@ def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding 
         for i in range(cube_incr, inls-cube_incr):
             if mode == 'xline':
                 for k in range(cube_incr, zls-cube_incr):
-                    examples[i-i_re,1,k-z_re,:,:,:] = seis_arr[i-cube_incr:i+cube_incr+1,\
+                    examples[i-i_re,1,k-z_re,:,:,:,:] = seis_arr[i-cube_incr:i+cube_incr+1,\
                                                                xline_num-cube_incr:xline_num+cube_incr+1,\
-                                                               k-cube_incr:k+cube_incr+1]
+                                                               k-cube_incr:k+cube_incr+1,:]
             else:
                 for j in range(cube_incr, xls-cube_incr):
                     for k in range(cube_incr, zls-cube_incr):
-                        examples[i-i_re,j-x_re,k-z_re,:,:,:] = seis_arr[i+inline_num-cube_incr:i+inline_num+cube_incr+1,\
+                        examples[i-i_re,j-x_re,k-z_re,:,:,:,:] = seis_arr[i+inline_num-cube_incr:i+inline_num+cube_incr+1,\
                                                                         j+xline_num-cube_incr:j+xline_num+cube_incr+1,\
-                                                                        k+depth-cube_incr:k+depth+cube_incr+1]
+                                                                        k+depth-cube_incr:k+depth+cube_incr+1,:]
 
                         # Make sure we stop after the appropriate number of iterations
                         if mode == 'point':
@@ -781,6 +828,7 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
     # show_prob: if the user wants to get out probabilities or classifications
 
     # Define some initial parameters
+    num_channels = seis_obj.cube_num
     inls = inp_seis.shape[0]
     xls = inp_seis.shape[1]
     zls = inp_seis.shape[2]
@@ -815,7 +863,7 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
                                num_classes),dtype=np.float32)
 
     # Preallocate the data array to fill for each batch and initiate iterators
-    data = np.empty((pred_batch*(section_edge[5]-section_edge[4]+1),cube_size,cube_size,cube_size), dtype=inp_res)
+    data = np.empty((pred_batch*(section_edge[5]-section_edge[4]+1),cube_size,cube_size,cube_size,num_channels), dtype=inp_res)
     indx = 0
     jndx = 0
 
@@ -836,7 +884,7 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
             print('xline-num:',xl_num-section_edge[2]+1,'/',section_edge[3]-section_edge[2]+1)
             for z_num in range(section_edge[5]-section_edge[4]+1):
                 # Call the cube_parse function to get the cubes corresponding to the current point
-                data[indx*(section_edge[5]-section_edge[4]+1)+z_num,:,:,:] = cube_parse(seis_arr = inp_seis,
+                data[indx*(section_edge[5]-section_edge[4]+1)+z_num,:,:,:,:] = cube_parse(seis_arr = inp_seis,
                                                                                         cube_incr = cube_incr,
                                                                                         inp_res = inp_res,
                                                                                         mode = 'point',
@@ -854,19 +902,19 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
                 if show_features:
                     prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):\
                               (jndx+1)*(pred_batch*(section_edge[5]-section_edge[4]+1)),:] = \
-                                    intermediate_layer_model.predict((np.expand_dims(data,axis=4)))
+                                    intermediate_layer_model.predict((data))
 
                 else:
                     if show_prob:
                         # Simple model prediction with probabilities
                         prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):\
                                    (jndx+1)*(pred_batch*(section_edge[5]-section_edge[4]+1)),:] = \
-                        keras_model.predict((np.expand_dims(data,axis=4)))
+                        keras_model.predict((data))
                     else:
                         # Model prediction of classes
                         prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):\
                                    (jndx+1)*(pred_batch*(section_edge[5]-section_edge[4]+1)),:] = \
-                        np.expand_dims(keras_model.predict_classes((np.expand_dims(data,axis=4))),axis = 1)
+                        np.expand_dims(keras_model.predict_classes((data)),axis = 1)
 
                 # Tell the user the section is finished
                 print('Section finished!')
@@ -910,14 +958,14 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
                 # Make the final prediction
                 if show_features:
                     prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):,:] = \
-                                    intermediate_layer_model.predict((np.expand_dims(data,axis=4)))
+                                    intermediate_layer_model.predict((data))
                 else:
                     if show_prob:
                         prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):,:] = \
-                                    keras_model.predict((np.expand_dims(data,axis=4)))
+                                    keras_model.predict((data))
                     else:
                         prediction[jndx*(pred_batch*(section_edge[5]-section_edge[4]+1)):,:] = \
-                                    np.expand_dims(keras_model.predict_classes((np.expand_dims(data,axis=4))),axis = 1)
+                                    np.expand_dims(keras_model.predict_classes((data)),axis = 1)
 
             # If we should keep filling the data and not predict yet, simply increase the iterator
             else:
@@ -981,7 +1029,6 @@ def predicting(filename,inp_seis,seis_obj,keras_model,cube_incr,num_classes,inp_
 
     # Return the prediction array
     return prediction
-
 
 
 
@@ -1210,12 +1257,6 @@ def show_details(filename,cube_incr,predic,inline,inl_start,xline,xl_start,\
     plt.show()
 
 
-
-
-
-
-
-
 ### ---- MASTER/MAIN function ----
 # Make an overall master function that takes inn some basic parameters,
 # trains, predicts, and visualizes the results from a model
@@ -1227,12 +1268,58 @@ def master(segy_filename,inp_format,cube_incr,train_dict={},pred_dict={},mode = 
     # pred_dict: Prediciton parameters packaged as a Python dictionary
     # mode: Do we want to train a model('train'), predict using an external model('predict'), or train a model and predict using it('full')
 
+    # Implement more than one segy-cube if the input segy_filename is a list
+    if type(segy_filename) is str or (type(segy_filename) is list and len(segy_filename) == 1):
+        # Check if the filename needs to be retrieved from a list
+        if type(segy_filename) is list:
+            segy_filename = segy_filename[0]
 
-    # Make a master segy object
-    segy_obj = segy_decomp(segy_file = segy_filename,
-                           plot_data = False,
-                           read_direc = 'full',
-                           inp_res = inp_format)
+        # Make a master segy object
+        segy_obj = segy_decomp(segy_file = segy_filename,
+                               plot_data = False,
+                               read_direc = 'full',
+                               inp_res = inp_format)
+
+        # Define how many segy-cubes we're dealing with
+        segy_obj.cube_num = 1
+        segy_obj.data = np.expand_dims(segy_obj.data, axis = 4)
+
+    elif type(segy_filename) is list:
+        # start an iterator
+        i = 0
+
+        # iterate through the list of cube names and store them in a masterobject
+        for filename in segy_filename:
+            # Make a master segy object
+            if i == 0:
+                segy_obj = segy_decomp(segy_file = filename,
+                                       plot_data = False,
+                                       read_direc = 'full',
+                                       inp_res = inp_format)
+
+                # Define how many segy-cubes we're dealing with
+                segy_obj.cube_num = len(segy_filename)
+
+                # Reshape and preallocate the numpy-array for the rest of the cubes
+                print('Starting restructuring to 4D arrays')
+                ovr_data = np.empty((list(segy_obj.data.shape) + [len(segy_filename)]))
+                ovr_data[:,:,:,i] = segy_obj.data
+                segy_obj.data = ovr_data
+                ovr_data = None
+                print('Finished restructuring to 4D arrays')
+            else:
+                # Add another cube to the numpy-array
+                segy_obj.data[:,:,:,i] = segy_adder(segy_file = filename,
+                                                    inp_cube = segy_obj.data,
+                                                    read_direc = 'full',
+                                                    inp_res = inp_format)
+            # Increase the itterator
+            i+=1
+    else:
+        print('The input filename needs to be a string, or a list of strings')
+
+
+    print('Finished unpaking and restructuring the numpy array')
 
 
     # Are we going to perform training?
@@ -1286,6 +1373,7 @@ def master(segy_filename,inp_format,cube_incr,train_dict={},pred_dict={},mode = 
                             batch_size = batch_size,
                             opt_patience = opt_patience,
                             data_augmentation = data_augmentation,
+                            num_channels = segy_obj.cube_num,
                             keras_model = keras_model,
                             write_out = write_out,
                             write_location = write_location)
@@ -1384,45 +1472,40 @@ def master(segy_filename,inp_format,cube_incr,train_dict={},pred_dict={},mode = 
     output = {
         'model' : model,
         'pred' : pred
-
     }
 
     return output
 
 
 
-
-
-
-
 #### ---- Run an instance of the master function ----
-filename='F3_entire.segy'    # name of the segy-cube with data
+filenames=['file1.segy','file2.segy','F3_entire.segy']    # name of the segy-cube(s) with data
 inp_res = np.float32    # formatting of the input seismic (e.g. np.int8 for 8-bit data, np.float32 for 32-bit data, etc)
 cube_incr = 32    # number of increments in each direction to create a training cube
 
 # Define the dictionary holding all the training parameters
 train_dict = {
-    'files' : ['multi_salt_ilxl.pts','multi_steep_dips_ilxl.pts','multi_low_coherency_ilxl.pts','multi_low_amplitude_ilxl.pts','multi_low_amp_dips_ilxl.pts','multi_high_amplitude_ilxl.pts','multi_high_amp_continuous_ilxl.pts','multi_grizzly_ilxl.pts','multi_else_ilxl.pts'],    # list of names of class-adresses
-    'num_tot_iterations': 15,    # number of times we draw a new training ensemble/mini-batch
-    'epochs' : 15,    # number of epochs we run on each training ensemble/mini-batch
-    'num_train_ex' : 60000,    # number of training examples in each training ensemble/mini-batch
+    'files' : ['multi_salt_ilxl.pts','multi_else_ilxl.pts', 'trainset_3', 'trainset_n'],    # list of names of class-adresses
+    'num_tot_iterations': 2,    # number of times we draw a new training ensemble/mini-batch
+    'epochs' : 2,    # number of epochs we run on each training ensemble/mini-batch
+    'num_train_ex' : 5000,    # number of training examples in each training ensemble/mini-batch
     'batch_size' : 32,    # number of training examples fed to the optimizer as a batch
     'opt_patience' : 10,    # number of epochs with the same accuracy before force breaking the training ensemble/mini-batch
     'data_augmentation' : False,    # whether or not we are using data augmentation
     'save_model' : True,    # whether or not we are saving the trained model
-    'save_location' : 'F3_multifacies_train_i15ep15_55k'    # file name for the saved trained model
+    'save_location' : 'F3_train.h5'    # file name for the saved trained model
 }
 
 # Define the dictionary holding all the prediction parameters
 pred_dict = {
-    'keras_model' :  keras.models.load_model('multi_facies_F3_10ep10it_35ksamples.h5'), # input model to be used for prediction, to load a model use: keras.models.load_model('write_location')
-    'section_edge' : np.asarray([134, 716, 332, 1218, 132, 1720]), # inline and xline section to be predicted (all depths), must contain xline
+    'keras_model' :  keras.models.load_model('F3_train.h5'), # input model to be used for prediction, to load a model use: keras.models.load_model('write_location')
+    'section_edge' : np.asarray([454, 470, 454, 470, 454, 966]), # inline and xline section to be predicted (all depths), must contain xline
     'show_feature' : False,    # Show the distinct features before they are combined to a prediction
-    'xline' : 122792,    # xline used for classification (index)(should be within section range)
+    'xline' : 458,    # xline used for classification (index)(should be within section range)
     'num_class' : len(train_dict['files']),    # number of classes to output
     'cord_syst' : 'segy',    # Coordinate system used, default is 0,0. Set to 'segy' to give inputs in (inline,xline)
     'save_pred' : True,    # Save the prediction as a segy-cube
-    'save_location' : 'xline_multi_facies_F3_10ep10it_60ksamples.h5',     # file name for the saved prediction
+    'save_location' : 'F3_pred.h5',     # file name for the saved prediction
     'pred_batch' : 50,     # number of traces used to make batches of mini-cubes that are stored in memory at once
     #'pred_batch' : train_dict['num_train_ex']//(pred_dict['section_edge'][5]-pred_dict['section_edge'][4])    #Suggested value
     'pred_prob' : False     # Give the probabilities of the first class(True), or simply show where each class is classified(False)
@@ -1431,12 +1514,12 @@ pred_dict = {
 
 # Run the master function and save the output in the output dictionary output_dict
 output_dict1 = master(
-    segy_filename = filename,     # Seismic filename
+    segy_filename = filenames,     # Seismic filenames
     inp_format = inp_res,     # Format of input seismic
     cube_incr = cube_incr,     # Increments in each direction to create a training cube
     train_dict = train_dict,     # Input training dictionary
     pred_dict = pred_dict,     # Input prediction dictionary
-    mode = 'train'     # Input mode ('train', 'predict', or 'full' for both training AND prediction)
+    mode = 'full'     # Input mode ('train', 'predict', or 'full' for both training AND prediction)
 )
 
 
