@@ -46,7 +46,7 @@ without having to move the script around, as long as the virtual environment is 
 
 <h3>Seismic training data for testing the tool:</h3>
 
-•	Since there is a limited number of free seismic dataset publicly available we decided to make available the Poseidon (3500km2) seismic dataset acquired for ConocoPhillips Australia including Near, Mid, Far stacks, well data and velocity data
+•	We decided to make available the Poseidon (3500km2) seismic dataset acquired for ConocoPhillips Australia including Near, Mid, Far stacks, well data and velocity data
 
 •	The seismic data is available here: https://goo.gl/wb145Z 
 <b> BEAWRE one 32 bit SEGY File is 100 GB of data</b>
