@@ -17,7 +17,7 @@ The tool reads can handle n seismic input cubes (offest stacks, 4D data, attribu
 
 •	The tool  has been updated to handle multiple input volumes (offest stacks, 4D seismic) for better classification results and more fun
 
-<h3>The User Manual for the tool can be found here</h3>
+<h3>The User Manual and seismic data for the tool can be found here</h3>
 https://goo.gl/wb145Z
 
 
