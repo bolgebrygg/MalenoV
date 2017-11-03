@@ -1,7 +1,8 @@
-### ---- MASTER/MAIN function ----
-# Make an overall master function that takes inn some basic parameters,
-# trains, predicts, and visualizes the results from a model
-def malenov(segy_filename,inp_format,cube_incr,train_dict={},pred_dict={},mode = 'full'):
+import numpy as np
+from malenov.segy import segy_decomp
+
+
+def master(segy_filename,inp_format,cube_incr,train_dict={},pred_dict={},mode = 'full'):
     # segy_filename: filename of the segy-cube to be imported (necessary for copying the segy-frame before writing a new segy)
     # inp_format: input resolution, the formatting of the seismic cube (could be changed to 8-bit data)
     # cube_incr: number of increments included in each direction from the example to make a mini-cube
