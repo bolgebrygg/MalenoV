@@ -13,7 +13,6 @@ from . import plotting
 from . import predict
 from . import segy
 from . import train
-from .malenov import master
 
 __all__ = ["augment",
            "malenov",
