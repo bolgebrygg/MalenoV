@@ -22,8 +22,8 @@ def csv_struct(inp_numpy,spec_obj,section,inp_res=np.float64,save=False,savename
             # Make a list of the inline number, xline number, and depth for the given trace
             I = (il+spec_obj.inl_start)*(np.ones((zlen,1)))
             X = (xl+spec_obj.xl_start)*(np.ones((zlen,1)))
-            Z = np.expand_dims(np.arange(section[4]*spec_obj.t_step+spec_obj.t_start,\
-                                         (section[5]+1)*spec_obj.t_step+spec_obj.t_start,spec_obj.t_step),\
+            Z = np.expand_dims(np.arange(section[4]*spec_obj.t_step+spec_obj.t_start,
+                                         (section[5]+1)*spec_obj.t_step+spec_obj.t_start,spec_obj.t_step),
                                axis=1)
 
             # Store the predicted class/probability at each og the given depths of the trace

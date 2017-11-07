@@ -5,7 +5,7 @@ from .cube_parse import cube_parse
 from .makeIntermediate import makeIntermediate
 from .predicting import predicting
 
-__all__ = ["predicting",
+__all__ = ["cube_parse",
+           "predicting",
            "makeIntermediate",
-           "cube_parse"
            ]

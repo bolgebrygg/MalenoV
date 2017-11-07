@@ -1,18 +1,24 @@
 import numpy as np
 import keras
+import time
 from keras.models import Sequential
-from keras.models import Model
+# from keras.models import Model
 from keras.layers import Dense, Activation, Flatten, Dropout
 from keras.layers import Conv3D
 from keras.callbacks import EarlyStopping
-from keras.callbacks import TensorBoard
+# from keras.callbacks import TensorBoard
 from keras.callbacks import LearningRateScheduler
 from keras.layers.normalization import BatchNormalization
 
 # Make the network structure and outline, and train it
-def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,\
-                num_bunch = 10,num_epochs = 100,num_examples = 10000,batch_size = 32,\
-                opt_patience = 5, data_augmentation=False,num_channels = 1,\
+from keras.preprocessing.image import ImageDataGenerator
+
+from malenov.train import adaptive_lr, ex_create
+
+
+def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
+                num_bunch = 10,num_epochs = 100,num_examples = 10000,batch_size = 32,
+                opt_patience = 5, data_augmentation=False,num_channels = 1,
                 keras_model = None,write_out = False,write_location = 'default_write'):
     # segy_obj: Object returned from the segy_decomp function
     # class_array: numpy array of class adresses and type, returned from the convert function
@@ -31,7 +37,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
     # write_location: desired location on the disk for the model to be saved
 
     # Check if the user wants to make a new model, or train an existing input model
-    if keras_model == None:
+    if keras_model is None:
         # Begin setting up model architecture and parameters
         cube_size = 2*cube_incr+1
 
@@ -39,7 +45,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
         #  and 2 fully connected layers with rectified linear and softmax activations)
         # We have added drop out and batch normalization our selves, and experimented with multi-prediction
         model = Sequential()
-        model.add(Conv3D(50, (5, 5, 5), padding='same', input_shape=(cube_size,cube_size,cube_size,num_channels), strides=(4, 4, 4), \
+        model.add(Conv3D(50, (5, 5, 5), padding='same', input_shape=(cube_size,cube_size,cube_size,num_channels), strides=(4, 4, 4),
                          data_format="channels_last",name = 'conv_layer1'))
         model.add(BatchNormalization())
         model.add(Activation('relu'))
@@ -184,7 +190,7 @@ def train_model(segy_obj,class_array,num_classes,cube_incr,inp_res = np.float64,
             print('Approximate time remaining of the training:',hours,' hrs., ',minutes,' min., ')
         else:
             days = time_rem//(24*60*60)
-            hours = (time_rem%(24*60*60))*(1/60)*((1/60))*(24/100)
+            hours = (time_rem%(24*60*60))*(1/60)*(1 / 60) * (24 / 100)
             print('Approximate time remaining of the training:',days,' days, ',hours,' hrs., ')
 
 

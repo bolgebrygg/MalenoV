@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf 8 -*-
-### ---- Functions for visualizing the predictions from the program ----
+# ---- Functions for visualizing the predictions from the program ----
 # Make a plotting function for plotting the features
 
 from .plotNNpred import plotNNpred

@@ -40,8 +40,8 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
     print('(inl_min,','inl_max,','xl_min,','xl_max,','t_min,','t_max)')
     print('(',inl_min,',',inl_max,',',xl_min,',',xl_max,',',t_min,',',t_max,')')
     # Also give the buffer values in terms of indexes
-    print('(',cube_incr,',',((inline_end-inline_start)//inline_step) - cube_incr,\
-          ',',cube_incr,',',((xline_end-xline_start)//xline_step) - cube_incr,\
+    print('(',cube_incr,',',((inline_end-inline_start)//inline_step) - cube_incr,
+          ',',cube_incr,',',((xline_end-xline_start)//xline_step) - cube_incr,
           ',',cube_incr,',',((t_end-t_start)//t_step) - cube_incr,')')
 
     # We preallocate the function outputs; a list of examples and a list of labels
@@ -69,9 +69,9 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
         for j in range(50):
             adr = adr_arr[rand_idx[i]]
             # Check that the given example is within the legal zone
-            if (adr[0]>=inl_min and adr[0]<inl_max) and \
-                (adr[1]>=xl_min and adr[1]<xl_max) and \
-                (adr[2]>=t_min and adr[2]<t_max):
+            if (inl_min <= adr[0] < inl_max) and \
+                (xl_min <= adr[1] < xl_max) and \
+                (t_min <= adr[2] < t_max):
                 # Make the example for the given address
                 # Convert the adresses to indexes and store the examples in the 4th dimension
                 idx = [(adr[0]-inline_start)//inline_step,(adr[1]-xline_start)//xline_step,(adr[2]-t_start)//t_step]
@@ -105,4 +105,4 @@ def ex_create(adr_arr,seis_arr,seis_spec,num_examp,cube_incr,inp_res=np.float64,
     #examples = examples[0:i-n+1,:,:,:]
 
     # Return the output list/tuple (slice it if it has been shortened)
-    return (examples[0:i-n+1,:,:,:,:], labels[0:i-n+1])
+    return examples[0:i - n + 1, :, :, :, :], labels[0:i - n + 1]

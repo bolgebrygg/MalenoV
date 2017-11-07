@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf 8 -*-
-### ---- Functions for data augmentation ---- (Needs further development)
+# ---- Functions for data augmentation ---- (Needs further development)
 
 from .randomFlip import randomFlip
 from .randomRotationXY import randomRotationXY

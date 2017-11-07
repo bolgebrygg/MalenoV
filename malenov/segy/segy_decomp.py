@@ -32,8 +32,8 @@ def segy_decomp(segy_file, plot_data = False, read_direc='xline', inp_res = np.f
 
 
         # Pre-allocate a numpy array that holds the SEGY-cube
-        output.data = np.empty((segyfile.xline.len,segyfile.iline.len,\
-                        (output.t_end - output.t_start)//output.t_step+1), dtype = np.float32)
+        output.data = np.empty((segyfile.xline.len,segyfile.iline.len,
+                                (output.t_end - output.t_start)//output.t_step+1), dtype = np.float32)
 
         # Read the entire cube line by line in the desired direction
         if read_direc == 'inline':
