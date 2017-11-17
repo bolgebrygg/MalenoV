@@ -44,4 +44,25 @@ https://goo.gl/wb145Z
 <b>MalenoV stands for MAchine LEarNing Of Voxels</b>
 
 <b>nD stands for unlimited input dimensions</b>
+ 
+ 
+ 
+ 
+ <b>Improvement ideas:</b>
+ 
+ <b>Priority number 1 </b>is to improve the classification speed.
+
+One easy  solution for this would be to do the classification only at a user defined spacing. Say every second inline and every third crossline and every other z sample. Once the classification is done a segy cube needs to be written out with a new inline xline z spacing but the same origin as the ingoing volumes. This undersampling will be really good to test hyper parameters because one would get a feel for the classification accuracy much quicker 
+
+The second way to improve speed would be to make sure that the to be trained or classified numpy cubes are truly 8 bit integer. Currently there is the option to switch  to 8 bit but it seems not to do the right stuff.
+
+<b>2nd priority </b>is implement 3d augmentation by allowing the user to choose how many and how a sub set of the training cubelets are deformed in 3d (squeezed stretched bent etc)  or adding gaussian noise to them. This would help to make more abstract models
+
+
+<b>3rd priority </b> is to implement tensor board or other visual tools to see how good the training goes and implement a scikit module to get an accuracy score for withheld training examples 
+
+
+<b>4th priority </b>would be to implement u nets Gan and other interesting architectures
+
+ 
 
