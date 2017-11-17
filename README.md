@@ -46,9 +46,10 @@ https://goo.gl/wb145Z
 <b>nD stands for unlimited input dimensions</b>
  
  
- 
- 
- <b>Improvement ideas:</b>
+  
+ .
+ .
+ <h3>Improvement ideas:</h3>
  
  <b>Priority number 1 </b>is to improve the classification speed.
 
