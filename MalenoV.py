@@ -50,7 +50,11 @@ cube_incr = 32    # number of increments in each direction to create a training 
 
 # Define the dictionary holding all the training parameters
 train_dict = {
-    'files' : ['multi_channel_new.pts','multi_coherent.pts','multi_else.pts','multi_fault.pts','multi_grid.pts','multi_grizzly.pts'],    # list of names of class-adresses
+    'files' : ['./class_addresses/multi_else_ilxl.pts','./class_addresses/multi_grizzly_ilxl.pts',
+               './class_addresses/multi_high_amp_continuous_ilxl.pts','./class_addresses/multi_high_amplitude_ilxl.pts',
+               './class_addresses/multi_low_amp_dips_ilxl.pts','./class_addresses/multi_low_amplitude_ilxl.pts',
+               './class_addresses/multi_low_coherency_ilxl.pts','./class_addresses/multi_salt_ilxl.pts',
+               './class_addresses/multi_steep_dips_ilxl.pts'], # list of names of class-adresses
     'num_tot_iterations': 25,    # number of times we draw a new training ensemble/mini-batch
     'epochs' : 12,    # number of epochs we run on each training ensemble/mini-batch
     'num_train_ex' : 18000,    # number of training examples in each training ensemble/mini-batch
