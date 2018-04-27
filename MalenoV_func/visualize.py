@@ -94,7 +94,7 @@ def visualization(filename,inp_seis,seis_obj,keras_model,cube_incr,section_edge,
         # Make the figure object/handle and plot the reference xline
         plt.figure(1, figsize=(15,15))
         plt.title('x-line')
-        plt.imshow(inp_seis[cube_incr:-cube_incr,xline_ref,cube_incr:-cube_incr].T,interpolation="nearest",\
+        plt.imshow(inp_seis[cube_incr:-cube_incr,xline_ref,cube_incr:-cube_incr,0].T,interpolation="nearest",\
                    cmap="gray",extent=[cube_incr,-cube_incr+len(inp_seis),cube_incr-len(inp_seis[0,0]),-cube_incr])
 
         # Plot all the features and show the figures
@@ -107,7 +107,7 @@ def visualization(filename,inp_seis,seis_obj,keras_model,cube_incr,section_edge,
         gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1])
         plt.subplot(gs[0])
         plt.title('x-line')
-        plt.imshow(inp_seis[cube_incr:-cube_incr,xline_ref,cube_incr:-cube_incr].T,interpolation="nearest",\
+        plt.imshow(inp_seis[cube_incr:-cube_incr,xline_ref,cube_incr:-cube_incr,0].T,interpolation="nearest",\
                    cmap="gray",extent=[cube_incr,-cube_incr+len(inp_seis),cube_incr-len(inp_seis[0,0]),-cube_incr])
         plt.colorbar()
 
