@@ -44,7 +44,7 @@ np.random.seed(7)
 
 
 #### ---- Run an instance of the master function ----
-filenames=['PGS16902VIK_pstm_ang08_17_dec_crop','PGS16902VIK_pstm_ang17_27_dec_crop', 'PGS16902VIK_pstm_ang27_33_dec_crop']    # name of the segy-cube(s) with data
+filenames=['F3_entire.segy']    # name of the segy-cube(s) with data
 inp_res = np.float32    # formatting of the input seismic (e.g. np.int8 for 8-bit data, np.float32 for 32-bit data, etc)
 cube_incr = 32    # number of increments in each direction to create a training cube
 
