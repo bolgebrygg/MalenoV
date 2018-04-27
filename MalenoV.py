@@ -27,13 +27,17 @@ np.random.seed(7)
 
 
 #### ---- Run an instance of the master function ----
-filenames=['PGS16902VIK_pstm_ang08_17_dec_crop','PGS16902VIK_pstm_ang17_27_dec_crop', 'PGS16902VIK_pstm_ang27_33_dec_crop']    # name of the segy-cube(s) with data
+filenames=['F3_entire.segy']    # name of the segy-cube(s) with data
 inp_res = np.float32    # formatting of the input seismic (e.g. np.int8 for 8-bit data, np.float32 for 32-bit data, etc)
 cube_incr = 32    # number of increments in each direction to create a training cube
 
 # Define the dictionary holding all the training parameters
 train_dict = {
-    'files' : ['multi_channel_new.pts','multi_coherent.pts','multi_else.pts','multi_fault.pts','multi_grid.pts','multi_grizzly.pts'],    # list of names of class-adresses
+    'files' : ['./class_addresses/multi_else_ilxl.pts','./class_addresses/multi_grizzly_ilxl.pts',
+               './class_addresses/multi_high_amp_continuous_ilxl.pts','./class_addresses/multi_high_amplitude_ilxl.pts',
+               './class_addresses/multi_low_amp_dips_ilxl.pts','./class_addresses/multi_low_amplitude_ilxl.pts',
+               './class_addresses/multi_low_coherency_ilxl.pts','./class_addresses/multi_salt_ilxl.pts',
+               './class_addresses/multi_steep_dips_ilxl.pts'], # list of names of class-adresses
     'num_tot_iterations': 25,    # number of times we draw a new training ensemble/mini-batch
     'epochs' : 12,    # number of epochs we run on each training ensemble/mini-batch
     'num_train_ex' : 18000,    # number of training examples in each training ensemble/mini-batch
