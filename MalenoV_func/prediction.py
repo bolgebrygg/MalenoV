@@ -3,6 +3,8 @@ import numpy as np
 import time
 import segyio
 
+from MalenoV_func.segy_files import *
+
 from keras.models import Sequential, Model
 from shutil import copyfile
 

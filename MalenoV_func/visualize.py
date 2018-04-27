@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
+from MalenoV_func.prediction import *
+
 from matplotlib import gridspec
 
 ### ---- Functions for visualizing the predictions from the program ----

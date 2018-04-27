@@ -2,6 +2,10 @@
 import numpy as np
 import time
 
+from MalenoV_func.segy_files import *
+from MalenoV_func.training import *
+from MalenoV_func.visualize import *
+
 ### ---- MASTER/MAIN function ----
 # Make an overall master function that takes inn some basic parameters,
 # trains, predicts, and visualizes the results from a model

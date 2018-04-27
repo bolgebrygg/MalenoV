@@ -4,7 +4,8 @@ import random
 import keras
 import time
 
-from modelling import *
+from MalenoV_func.modelling import *
+from MalenoV_func.data_aug import *
 
 from keras.callbacks import EarlyStopping, LearningRateScheduler, TensorBoard
 

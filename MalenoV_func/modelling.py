@@ -1,6 +1,7 @@
 # Make initial package imports
 import keras
-from keras.models import Sequential, Dense, Activation, Flatten, Dropout, Conv3D
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Flatten, Dropout, Conv3D
 from keras.layers.normalization import BatchNormalization
 
 ### ---- Make the model for the neural network ----

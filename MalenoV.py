@@ -12,12 +12,8 @@ import keras
 
 
 ## Import the needed files
-from MalenoV_func.data_aug import *
 from MalenoV_func.masterf import *
-from MalenoV_func.prediction import *
-from MalenoV_func.segy_files import *
-from MalenoV_func.training import *
-from MalenoV_func.visualize import *
+
 
 
 # Set random seed for reproducability
