@@ -47,7 +47,7 @@ train_dict = {
 # Define the dictionary holding all the prediction parameters
 pred_dict = {
     'keras_model' :  None, # input model to be used for prediction, to load a model use: keras.models.load_model('write_location')
-    'section_edge' : np.asarray([130, 720, 775, 775, 124, 1728]), # inline and xline section to be predicted (all depths), must contain xline
+    'section_edge' : np.asarray([150, 700, 775, 775, 150, 1700]), # inline and xline section to be predicted (all depths), must contain xline
     'show_feature' : False,    # Show the distinct features before they are combined to a prediction
     'xline' : 775,    # xline used for classification (index)(should be within section range)
     'num_class' : len(train_dict['files']),    # number of classes to output
