@@ -1,5 +1,10 @@
+# Make initial package imports
+import keras
+from keras.models import Sequential, Dense, Activation, Flatten, Dropout, Conv3D
+from keras.layers.normalization import BatchNormalization
+
 ### ---- Make the model for the neural network ----
-def train_model(cube_size = 65, num_channels = 1, num_classes = 2, opt = keras.optimizers.adam(lr=0.001)):
+def make_model(cube_size = 65, num_channels = 1, num_classes = 2, opt = keras.optimizers.adam(lr=0.001)):
     #  This model is loosely built after that of Anders Waldeland (5 Convolutional layers
     #  and 2 fully connected layers with rectified linear and softmax activations)
     #  We have added drop out and batch normalization our selves, and experimented with multi-prediction

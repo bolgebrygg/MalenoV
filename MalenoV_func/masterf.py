@@ -1,3 +1,7 @@
+# Make initial package imports
+import numpy as np
+import time
+
 ### ---- MASTER/MAIN function ----
 # Make an overall master function that takes inn some basic parameters,
 # trains, predicts, and visualizes the results from a model

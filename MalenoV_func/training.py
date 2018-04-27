@@ -1,3 +1,13 @@
+# Make initial package imports
+import numpy as np
+import random
+import keras
+import time
+
+from modelling import *
+
+from keras.callbacks import EarlyStopping, LearningRateScheduler, TensorBoard
+
 ### ---- Functions for the training part of the program ----
 # Make a function that combines the adress cubes and makes a list of class adresses
 def convert(file_list, save = False, savename = 'adress_list', ex_adjust = False):

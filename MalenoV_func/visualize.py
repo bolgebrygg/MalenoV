@@ -1,3 +1,9 @@
+# Make initial package imports
+import matplotlib.pyplot as plt
+import math
+import numpy as np
+
+from matplotlib import gridspec
 
 ### ---- Functions for visualizing the predictions from the program ----
 # Make a plotting function for plotting the features

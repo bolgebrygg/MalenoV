@@ -1,3 +1,11 @@
+# Make initial package imports
+import numpy as np
+import time
+import segyio
+
+from keras.models import Sequential, Model
+from shutil import copyfile
+
 ### ---- Functions for the prediction part of the program ----
 # Parse the cube into sub-cubes suitable as model input
 def cube_parse(seis_arr,cube_incr,inp_res = np.float64, mode = 'trace', padding = False,\

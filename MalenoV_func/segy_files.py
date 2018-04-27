@@ -1,6 +1,9 @@
+# Make initial package imports
+import segyio
+import numpy as np
+
+
 ### ---- Functions for Input data(SEG-Y) formatting and reading ----
-
-
 # Make a function that decompresses a segy-cube and creates a numpy array, and
 # a dictionary with the specifications, like in-line range and time step length, etc.
 def segy_decomp(segy_file, plot_data = False, read_direc='xline', inp_res = np.float64):

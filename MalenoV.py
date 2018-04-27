@@ -6,31 +6,14 @@
 ### GNU V3.0 lesser license
 
 # Make initial package imports
-import segyio
 import random
-import keras
 import numpy as np
-import matplotlib.pyplot as plt
-import math
-import time
+import keras
 
-from keras.models import Sequential
-from keras.models import Model
-from keras.layers import Dense, Activation, Flatten, Dropout
-from keras.layers import Conv3D
-from keras.callbacks import EarlyStopping
-from keras.callbacks import TensorBoard
-from keras.callbacks import LearningRateScheduler
-from matplotlib import gridspec
-
-from keras.layers.normalization import BatchNormalization
-
-from shutil import copyfile
 
 ## Import the needed files
 from MalenoV_func.data_aug import *
 from MalenoV_func.masterf import *
-from MalenoV_func.make_model import *
 from MalenoV_func.prediction import *
 from MalenoV_func.segy_files import *
 from MalenoV_func.training import *
