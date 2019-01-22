@@ -1,4 +1,4 @@
-# MalenoV_nD
+# MalenoV_nD (MAchine LEarNing Of Voxels)
 <h1> Tool for training &amp;  classifying 3D (4D, nD) SEGY seismic facies using deep neural networks</h1>
 
 <h3>For attribution nets check out https://github.com/crild/facies_net </h3>
