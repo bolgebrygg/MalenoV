@@ -20,7 +20,7 @@ The tool reads can handle n seismic input cubes (offest stacks, 4D data, attribu
 •	The tool  has been updated to handle multiple input volumes (offest stacks, 4D seismic) for better classification results and more fun
 
 <h3>The User Manual, seismic data, training data and set up scripts for the tool can be found here</h3>
-www.shorturl.at/hjWX4
+https://drive.google.com/drive/folders/0B7brcf-eGK8CRUhfRW9rSG91bW8
 
 
 
@@ -30,7 +30,7 @@ www.shorturl.at/hjWX4
 
 •	We decided to make available the Poseidon (3500km2) seismic dataset acquired for ConocoPhillips Australia including Near, Mid, Far stacks, well data and velocity data
 
-•	The seismic data is available here: www.shorturl.at/hjWX4 
+•	The seismic data is available here: https://drive.google.com/drive/folders/0B7brcf-eGK8CRUhfRW9rSG91bW8
 <b> BEAWRE one 32 bit SEGY File is 100 GB of data</b>
 
 •	There is also inline, xline, z, training data for fault identification on the Poseidon survey
